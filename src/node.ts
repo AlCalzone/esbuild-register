@@ -102,5 +102,7 @@ export function register(
   patchCommonJsLoader(compile)
   addHook(compile, {
     exts: extensions,
+    ignoreNodeModules: false,
+    matcher: (filename) => /\.(tsx?|jsx)$/.test(filename)
   })
 }
