@@ -15,37 +15,25 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [22.x, 24.x, 26.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Cache ~/.pnpm-store
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-pnpm-store
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.node-version }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-${{ matrix.node-version }}-build-
-            ${{ runner.os }}-
-
-      - name: Install pnpm
-        run: npm i -g pnpm
+          cache: yarn
 
       - name: Install deps
-        run: pnpm i
+        run: yarn install --frozen-lockfile
 
-      - run: pnpm test
+      - run: yarn test
 
-      - run: pnpx -y semantic-release
+      - name: Release
+        if: github.event_name == 'push' && matrix.node-version == '24.x'
+        run: npx -y semantic-release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
