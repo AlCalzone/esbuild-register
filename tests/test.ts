@@ -47,4 +47,13 @@ test('register cjs', async () => {
 //   assert.is(stdout, 'foo')
 // })
 
+test('typescript in node_modules (adapter-like package)', async () => {
+  const { stdout } = await execa('node', [
+    '-r',
+    `${process.cwd()}/register.js`,
+    `${process.cwd()}/tests/fixture-node-modules-ts/node_modules/iobroker.demo/main.ts`,
+  ])
+  assert.is(stdout, 'demo:42|Green|hi|dep')
+})
+
 test.run()
